@@ -50,20 +50,49 @@ if [[ ! -s "$DEST_FILE" ]]; then
   exit 1
 fi
 
-# Небольшая валидация формата (PEM)
-if ! head -n1 "$DEST_FILE" | grep -q '-----BEGIN'; then
-  echo "Предупреждение: файл $DEST_FILE не похож на PEM (нет заголовка '-----BEGIN')." >&2
-fi
+# # Небольшая валидация формата (PEM)
+# if ! head -n1 "$DEST_FILE" | grep -q '-----BEGIN'; then
+#   echo "Предупреждение: файл $DEST_FILE не похож на PEM (нет заголовка '-----BEGIN')." >&2
+# fi
 
 echo "Сертификат сохранён в $DEST_FILE"
 
 # Установить Docker (официальный скрипт)
-curl -fsSL https://get.docker.com | sh
+# curl -fsSL https://get.docker.com | sh
 
-# ЗАПУСК КОНТЕЙНЕРА (добавлено)
+# # ЗАПУСК КОНТЕЙНЕРА (добавлено)
+# # docker compose up -d
+# # --- Compose up ---
+# # Предполагается, что скрипт вызывается из каталога с docker-compose.yml (ты делаешь 'cd Marzban-node' в рецепте).
+# docker compose pull
 # docker compose up -d
+# docker compose ps
+
+# --- Docker install (устойчиво) ---
+export DEBIAN_FRONTEND=noninteractive
+
+fix_apt() {
+  dpkg --configure -a || true
+  apt-get -f install -y || true
+  apt-get update -y || true
+}
+
+fix_apt
+curl -fsSL https://get.docker.com | sh || { fix_apt; curl -fsSL https://get.docker.com | sh; }
+
+# Запустить/включить docker
+systemctl enable --now docker
+
+# Проверки
+docker --version
+# compose-плагин иногда не подтягивается автоматически — добиваемся наличия
+if ! docker compose version >/dev/null 2>&1; then
+  apt-get install -y docker-compose-plugin || { fix_apt; apt-get install -y docker-compose-plugin; }
+fi
+docker compose version
+
 # --- Compose up ---
-# Предполагается, что скрипт вызывается из каталога с docker-compose.yml (ты делаешь 'cd Marzban-node' в рецепте).
+# скрипт вызывается из /home/forge/Marzban-node по рецепту
 docker compose pull
 docker compose up -d
 docker compose ps
