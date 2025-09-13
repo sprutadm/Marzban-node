@@ -25,6 +25,7 @@ visudo -c
 # ufw status numbered
 
 # Клонировать репозиторий ноды
+cd /home/forge
 git clone https://github.com/sprutadm/Marzban-node
 cd Marzban-node
 
@@ -44,5 +45,6 @@ bash ./fetch-cert.sh
 
 # Если на сервере есть папка панели, разрешить forge менять только сам каталог (файлы не трогаем)
 #[ -d /var/lib/marzban ] && chown forge:forge /var/lib/marzban && chmod 755 /var/lib/marzban || true
+
 
 
