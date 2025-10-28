@@ -24,7 +24,7 @@ cd /home/forge/Marzban-node/scripts
 
 bash ./ufw-ports.sh
 bash ./get-cert.sh
-bash ./marzban-node_local.sh install
+bash ./marzban-node-local.sh install
 
 
 
