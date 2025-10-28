@@ -441,7 +441,7 @@ install_command() {
     install_marzban_node_script
     install_marzban_node
     up_marzban_node
-    follow_marzban_node_logs
+    # follow_marzban_node_logs
     echo "Use your IP: $NODE_IP and defaults ports: $SERVICE_PORT and $XRAY_API_PORT to setup your Marzban Main Panel"
 }
 
