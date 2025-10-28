@@ -16,6 +16,7 @@ visudo -c
 # Клонировать репозиторий ноды
 cd /home/forge
 git clone https://github.com/sprutadm/Marzban-node
+chown -R forge:forge /home/forge/Marzban-node
 cd Marzban-node
 
 
