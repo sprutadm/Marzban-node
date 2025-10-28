@@ -442,6 +442,7 @@ install_command() {
     install_marzban_node
     up_marzban_node
     # follow_marzban_node_logs
+    update_core_command_auto
     echo "Use your IP: $NODE_IP and defaults ports: $SERVICE_PORT and $XRAY_API_PORT to setup your Marzban Main Panel"
 }
 
@@ -844,6 +845,54 @@ fi
     wait
     rm "${xray_filename}"
 }
+
+# Автоматическая версия установки Xray-core (без интерактивного меню)
+get_xray_core_auto() {
+    identify_the_operating_system_and_architecture
+    
+    # Получаем самую свежую версию из GitHub API
+    latest_release=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases/latest")
+    selected_version=$(echo "$latest_release" | grep -oP '"tag_name": "\K(.*?)(?=")')
+    
+    if [ -z "$selected_version" ]; then
+        colorized_echo red "Failed to get latest Xray-core version"
+        exit 1
+    fi
+    
+    colorized_echo blue "Installing latest Xray-core version: $selected_version"
+    
+    if ! dpkg -s unzip >/dev/null 2>&1; then
+        colorized_echo blue "Installing required packages..."
+        detect_os
+        install_package unzip
+    fi
+    
+    mkdir -p $DATA_MAIN_DIR/xray-core
+    cd $DATA_MAIN_DIR/xray-core
+    
+    xray_filename="Xray-linux-$ARCH.zip"
+    xray_download_url="https://github.com/XTLS/Xray-core/releases/download/${selected_version}/${xray_filename}"
+    
+    colorized_echo blue "Downloading Xray-core version ${selected_version}..."
+    if ! wget "${xray_download_url}" -q; then
+        colorized_echo red "Failed to download Xray-core"
+        exit 1
+    fi
+    
+    colorized_echo blue "Extracting Xray-core..."
+    if ! unzip -o "${xray_filename}" >/dev/null 2>&1; then
+        colorized_echo red "Failed to extract Xray-core"
+        rm -f "${xray_filename}"
+        exit 1
+    fi
+    rm "${xray_filename}"
+    
+    colorized_echo green "Xray-core version $selected_version installed successfully"
+    
+    # Экспортируем selected_version для использования в вызывающей функции
+    export selected_version
+}
+
 get_current_xray_core_version() {
     XRAY_BINARY="$DATA_MAIN_DIR/xray-core/xray"
     if [ -f "$XRAY_BINARY" ]; then
@@ -973,6 +1022,30 @@ update_core_command() {
     colorized_echo red "Restarting Marzban-node..."
     $APP_NAME restart -n
     colorized_echo blue "Installation of XRAY-CORE version $selected_version completed."
+}
+
+# Автоматическая версия обновления Xray-core (без интерактивного меню)
+update_core_command_auto() {
+    check_running_as_root
+    get_xray_core_auto
+
+    if ! command -v yq &>/dev/null; then
+        colorized_echo blue "yq is not installed. Installing yq..."
+        install_yq
+    fi
+
+    if ! grep -q 'XRAY_EXECUTABLE_PATH: "/var/lib/marzban-node/xray-core/xray"' "$COMPOSE_FILE"; then
+        yq eval '.services."marzban-node".environment.XRAY_EXECUTABLE_PATH = "/var/lib/marzban-node/xray-core/xray"' -i "$COMPOSE_FILE"
+    fi
+
+    if ! yq eval ".services.\"marzban-node\".volumes[] | select(. == \"${DATA_MAIN_DIR}:/var/lib/marzban-node\")" "$COMPOSE_FILE" &>/dev/null; then
+        yq eval ".services.\"marzban-node\".volumes += \"${DATA_MAIN_DIR}:/var/lib/marzban-node\"" -i "$COMPOSE_FILE"
+    fi
+    
+    # Restart Marzban-node
+    colorized_echo blue "Restarting Marzban-node..."
+    $APP_NAME restart -n
+    colorized_echo green "Installation of XRAY-CORE version $selected_version completed."
 }
 
 
