@@ -59,7 +59,7 @@ COMPOSE_FILE="$APP_DIR/docker-compose.yml"
 LAST_XRAY_CORES=5
 CERT_FILE="$DATA_DIR/ssl_client_cert.pem"
 FETCH_REPO="sprutadm/Marzban-node"
-SCRIPT_URL="https://github.com/$FETCH_REPO/raw/master/scripts/marzban-node.sh"
+SCRIPT_URL="https://github.com/$FETCH_REPO/raw/master/marzban-node.sh"
 
 colorized_echo() {
     local color=$1
