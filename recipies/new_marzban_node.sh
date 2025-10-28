@@ -23,7 +23,7 @@ cd Marzban-node
 cd /home/forge/Marzban-node/scripts
 
 bash ./ufw-ports.sh
-bash ./get-sert.sh
+bash ./get-cert.sh
 
 
 
