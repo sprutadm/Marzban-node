@@ -440,7 +440,7 @@ install_command() {
     detect_compose
     install_marzban_node_script
     install_marzban_node
-    up_marzban_node
+    # up_marzban_node
     # follow_marzban_node_logs
     update_core_command_auto
     echo "Use your IP: $NODE_IP and defaults ports: $SERVICE_PORT and $XRAY_API_PORT to setup your Marzban Main Panel"
