@@ -187,6 +187,13 @@ install_marzban_node_script() {
     TARGET_PATH="/usr/local/bin/$APP_NAME"
     curl -sSL $SCRIPT_URL -o $TARGET_PATH
     
+    # Проверка синтаксиса перед применением sed
+    if ! bash -n "$TARGET_PATH" 2>/dev/null; then
+        colorized_echo red "Syntax error in downloaded script. Removing corrupted file."
+        rm -f "$TARGET_PATH"
+        exit 1
+    fi
+    
     sed -i "s/^APP_NAME=.*/APP_NAME=\"$APP_NAME\"/" $TARGET_PATH
     
     chmod 755 $TARGET_PATH
@@ -228,7 +235,8 @@ install_marzban_node() {
     mkdir -p "$DATA_MAIN_DIR"
     
     # Проверка на существование файла перед его очисткой
-    if [ -f "$CERT_FILE" ]; then
+    # Если файл уже существует и не пустой - не очищаем (автоматическая установка)
+    if [ -f "$CERT_FILE" ] && [ ! -s "$CERT_FILE" ]; then
         >"$CERT_FILE"
     fi
     
