@@ -1,11 +1,11 @@
-# Обновление пакетов
+# # Обновление пакетов
 apt-get update -y
 apt-get dist-upgrade -y
 
-# Установка утилит
+# # Установка утилит
 apt-get install -y ufw mc htop rsync curl socat git
 
-# Дать forge право sudo без пароля (drop-in)
+# # Дать forge право sudo без пароля (drop-in)
 echo 'forge ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/forge
 chown root:root /etc/sudoers.d/forge
 chmod 0440 /etc/sudoers.d/forge
@@ -20,11 +20,6 @@ chown -R forge:forge /home/forge/Marzban-node
 cd Marzban-node
 
 
-# bash ./fetch-cert.sh
 bash scripts/ufw-ports.sh
 bash scripts/get-cert.sh
 bash scripts/marzban-node-local.sh install
-
-
-
-
